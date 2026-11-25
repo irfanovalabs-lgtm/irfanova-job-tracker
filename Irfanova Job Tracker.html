@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Irfanova Job Tracker</title>
+<style>
+:root{--bg:#F7F5EF;--card:#fff;--ink:#23301F;--mute:#66705f;--line:#e3e0d4;--brand:#E8412C;--brandink:#fff;--accent:#9CAF88;--danger:#C73A25;--bgl:90%;--fgl:24%;--shadow:0 1px 3px rgba(35,48,31,.10);--hero:#9CAF88;--heroink:#1f2b1b;--herosub:#33432d;--herobar:rgba(255,255,255,.4);--heroline:rgba(35,48,31,.28);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d2219;--card:#272e22;--ink:#F7F5EF;--mute:#b9c4af;--line:#3c4636;--brand:#E8412C;--brandink:#fff;--accent:#9CAF88;--danger:#f08a76;--bgl:24%;--fgl:86%;--shadow:none;--hero:#323d2c;--heroink:#F7F5EF;--herosub:#c9d4bf;--herobar:rgba(247,245,239,.08);--heroline:rgba(247,245,239,.28)}}
+:root[data-theme="dark"]{--bg:#1d2219;--card:#272e22;--ink:#F7F5EF;--mute:#b9c4af;--line:#3c4636;--brand:#E8412C;--brandink:#fff;--accent:#9CAF88;--danger:#f08a76;--bgl:24%;--fgl:86%;--shadow:none;--hero:#323d2c;--heroink:#F7F5EF;--herosub:#c9d4bf;--herobar:rgba(247,245,239,.08);--heroline:rgba(247,245,239,.28)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;line-height:1.45}
+.wrap{max-width:1100px;margin:0 auto;padding:22px 16px 60px}
+.hero{background:#003135;color:#AFDDE5;border-radius:18px;padding:22px 22px 20px;margin-bottom:18px;border-bottom:4px solid #964734}
+h1{font-size:28px;margin:0;color:#fff;font-weight:600;letter-spacing:-.5px}.sub{color:#AFDDE5;margin:4px 0 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:28px;line-height:1.1}.stat span{color:var(--mute);font-size:13px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);outline-offset:0}
+#q{flex:1;min-width:180px}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px}
+button.pri{background:var(--brand);color:var(--brandink);border-color:var(--brand);font-weight:600}
+button:hover{filter:brightness(.97)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{border-radius:999px;padding:6px 12px;font-size:13px}
+.chip.on{background:var(--brand);color:var(--brandink);border-color:var(--brand)}
+.chip i{font-style:normal;opacity:.7;margin-left:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:9px}
+.card.late{border-color:var(--danger);box-shadow:0 0 0 1px var(--danger)}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.co{font-weight:700;font-size:16px;word-break:break-word}.pos{color:var(--mute);font-size:14px}
+.pill{border:0;border-radius:999px;padding:5px 10px;font-size:13px;font-weight:600;background:hsl(var(--h) var(--s) var(--bgl));color:hsl(var(--h) calc(var(--s) - 5%) var(--fgl));cursor:pointer}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--mute)}
+.meta b{color:var(--ink);font-weight:600}
+.warn{color:var(--danger);font-weight:700}
+.rem{font-size:13px;color:var(--mute);border-top:1px dashed var(--line);padding-top:8px;white-space:pre-wrap;word-break:break-word}
+.act{display:flex;gap:8px;margin-top:auto}.act button{padding:6px 11px;font-size:13px}
+button.dng{background:var(--danger);border-color:var(--danger);color:#fff;font-weight:600}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#003135;color:#AFDDE5;padding:10px 18px;border-radius:999px;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;border:1px solid #0FA4AF}
+.toast.on{opacity:1}
+.cm{padding:22px;display:block}.cm p{margin:6px 0 18px}
+.empty{text-align:center;color:var(--mute);padding:50px 10px;border:2px dashed var(--line);border-radius:16px}
+dialog{border:0;border-radius:16px;padding:0;max-width:560px;width:calc(100% - 24px);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(10,14,25,.55)}
+form{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+form h2{grid-column:1/-1;margin:0;font-size:20px}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute)}
+label.full{grid-column:1/-1}
+.fa{grid-column:1/-1;display:flex;gap:10px;justify-content:flex-end}
+@media(max-width:520px){form{grid-template-columns:1fr}}
+
+.sync{display:inline-block;margin-top:10px;font-size:12px;padding:3px 10px;border-radius:999px;background:rgba(175,221,229,.15);color:#AFDDE5;border:1px solid rgba(175,221,229,.35)}
+.sync.ok{border-color:#0FA4AF;color:#7fe0e8}.sync.loc{border-color:#c8896f;color:#f0b9a5}
+.lnk{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#003135;text-decoration:none;font-weight:600;font-size:13px;padding:7px 12px;border-radius:10px;align-self:flex-start}
+.lnk:hover{filter:brightness(.95)}
+.act button,.lnk{min-height:38px}
+.act{flex-wrap:wrap}
+.fabs{display:none}
+.card{cursor:pointer}
+.brand{font-weight:800;letter-spacing:.34em;font-size:12px;color:#0FA4AF;margin-bottom:6px}.brand sup{font-size:9px;letter-spacing:0;margin-left:2px}
+.cvbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:12px;padding:10px 12px;border-radius:12px;background:rgba(175,221,229,.12);border:1px solid rgba(175,221,229,.3);font-size:13.5px}
+.cvbar b{color:#fff}.cvbar .grow{flex:1 1 220px;color:#AFDDE5}
+.cvbar button,.cvbar a{font-size:13px;padding:6px 12px;border-radius:9px;min-height:34px;display:inline-flex;align-items:center}
+.cvbar a{background:#0FA4AF;color:#003135;text-decoration:none;font-weight:600}
+.cvbar button{background:transparent;color:#AFDDE5;border-color:rgba(175,221,229,.5)}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}
+.seg button{border:0;border-radius:0;padding:9px 12px;background:transparent}.seg button.on{background:var(--brand);color:var(--brandink);font-weight:600}
+.logo{border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:700;flex:0 0 auto;background:#fff;border:1px solid var(--line)}
+.logo img{width:100%;height:100%;object-fit:contain}
+.lt{display:flex;gap:10px;align-items:center;min-width:0}
+.vlist{grid-template-columns:1fr!important;gap:8px}
+.lrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto 110px 150px auto;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 12px;cursor:pointer;box-shadow:var(--shadow)}
+.lrow.late,.itile.late{border-color:var(--danger)}
+.lrow .t{min-width:0}.lrow .t .pos{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .x{font-size:12.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vicons{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))!important;gap:12px}
+.itile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;cursor:pointer;box-shadow:var(--shadow)}
+.itile .nm{font-weight:600;font-size:13px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.itile .pill{font-size:11px;padding:3px 8px}
+.lrow2{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.lrow2 small{color:var(--mute);font-size:12px;flex:1 1 160px}
+.cvrow{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.cvrow .h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cvrow .star{background:var(--accent);color:#003135;border-radius:999px;font-size:11px;font-weight:700;padding:2px 8px}
+.cvrow .b{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}.cvrow .b button,.cvrow .b a{font-size:12.5px;padding:5px 10px;border-radius:8px;min-height:32px}
+.cvrow .lnk{align-self:auto}
+.chk{flex-direction:row!important;align-items:center;gap:8px!important}.chk input{width:auto}
+#cvdlg{max-width:640px}#cvdlg .quick label{color:var(--mute)}
+.tip{font-size:12.5px;color:var(--mute);margin:-4px 0 12px}
+.tip kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;font:inherit;background:var(--card)}
+.quick{grid-column:1/-1;background:var(--bg);border:1px dashed var(--accent);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.quick b{color:var(--ink);font-size:13px}.quick textarea{min-height:70px}
+.quick .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.quick small{color:var(--mute);font-size:12px;flex:1 1 170px}
+#ddlg{max-width:620px}
+.det{padding:20px;display:flex;flex-direction:column;gap:10px}
+.det h2{margin:0;font-size:21px;word-break:break-word}.sub2{color:var(--mute);font-size:14px}
+.dh{font-weight:700;font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;margin-top:4px}
+.desc{white-space:pre-wrap;word-break:break-word;max-height:40vh;overflow-y:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:14px}
+.det .fa{margin-top:6px}
+.sync.ro{border-color:#AFDDE5;color:#AFDDE5}
+.hint{grid-column:1/-1;font-size:12px;color:var(--mute);margin:-6px 0 0}
+.scanrow{grid-column:1/-1}
+@media(max-width:640px){
+ .lrow{grid-template-columns:auto minmax(0,1fr) auto}.lrow .x,.lrow .dtb{display:none}.bar select{flex:1 1 40%;min-width:0}.seg{flex:1 1 100%}.seg button{flex:1;padding:10px 6px}.bar #exp{flex:1 1 100%}
+ .wrap{padding:12px 12px 110px}
+ .hero{padding:16px}h1{font-size:22px}
+ .stats{grid-template-columns:repeat(3,1fr);gap:8px}.stat{padding:10px 12px}.stat b{font-size:22px}.stat span{font-size:12px}
+ .bar #add,.bar #scan,.bar #pasteb{display:none}
+ #q{flex:1 1 100%}.bar select,.bar #exp{flex:1}
+ .chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;margin-right:-12px;-webkit-overflow-scrolling:touch}.chip{white-space:nowrap;flex:0 0 auto}
+ .grid{grid-template-columns:1fr}
+ .fabs{display:flex;flex-direction:column;gap:12px;position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40}
+ .fabs button{width:56px;height:56px;border-radius:50%;font-size:26px;padding:0;box-shadow:0 6px 18px rgba(0,0,0,.3);line-height:1}
+ .fabs .sm{font-size:22px;background:var(--card)}
+ dialog{width:100%;max-width:100%;max-height:94dvh;overflow-y:auto;margin:auto auto 0;border-radius:18px 18px 0 0}
+ .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px));width:max-content;max-width:90%;text-align:center}
+}
+[hidden]{display:none!important}
+.hero{background:var(--hero);color:var(--heroink);border-bottom:4px solid #E8412C}
+h1{color:var(--heroink)}.sub{color:var(--herosub)}
+.brand{color:var(--heroink);display:inline-block;border-bottom:2px solid #E8412C;padding-bottom:3px}
+.sync{background:var(--herobar);color:var(--heroink);border:1px solid var(--heroline)}
+.sync.ok,.sync.ro{border-color:var(--heroline);color:var(--heroink)}
+.sync.loc{border-color:#E8412C;color:var(--heroink);background:rgba(232,65,44,.18);cursor:pointer}
+.cvbar{background:var(--herobar);border:1px solid var(--heroline)}
+.cvbar b{color:var(--heroink)}.cvbar .grow{color:var(--herosub)}
+.cvbar a{background:#E8412C;color:#fff}
+.cvbar button{background:transparent;color:var(--heroink);border-color:var(--heroline)}
+.toast{background:#23301F;color:#F7F5EF;border:1px solid #9CAF88}
+.lnk{background:var(--accent);color:#1f2b1b}.cvrow .star{background:var(--accent);color:#1f2b1b}
+.quick{border-color:var(--accent)}
+#bkdlg .det button{min-height:44px;width:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero"><div class="brand">IRFANOVA<sup>™</sup></div><h1>Job Hunting Tracker</h1>
+  <p class="sub">Keep every application, interview and follow-up in one place.</p>
+  <span class="sync" id="sync">Connecting…</span>
+  <div class="cvbar" id="cvbar"></div></div>
+  <div class="stats" id="stats"></div>
+  <div class="bar">
+    <input id="q" type="search" placeholder="Search company, position, contact…">
+    <select id="sort">
+      <option value="new">Newest applied</option>
+      <option value="old">Oldest applied</option>
+      <option value="az">Company A–Z</option>
+      <option value="fu">Follow-up soonest</option>
+    </select>
+    <select id="cvf" aria-label="Filter by CV"></select>
+    <div class="seg" id="seg"><button data-v="tiles">⊞ Tiles</button><button data-v="list">☰ List</button><button data-v="icons">⁝⁝ Icons</button></div>
+    <button id="exp">Backup</button>
+    <button id="scan">📷 Scan job ad</button>
+    <button id="pasteb">📋 Paste screenshot</button>
+    <button class="pri" id="add">+ Add application</button>
+  </div>
+  <div class="tip" id="tip">Tip: copy a job screenshot, then press <kbd>Ctrl</kbd>+<kbd>V</kbd> (or <kbd>Cmd</kbd>+<kbd>V</kbd>) anywhere on this page to scan it. On a phone, use the 📷 button or paste into the Quick fill box.</div>
+  <div class="tip" id="bknote"></div>
+  <div class="chips" id="chips"></div>
+  <div class="grid" id="list"></div>
+</div>
+<div class="fabs"><button class="sm" id="scan2" aria-label="Scan job ad">📷</button><button class="pri" id="add2" aria-label="Add application">+</button></div>
+<input type="file" id="pic" accept="image/*" hidden>
+
+<dialog id="dlg">
+  <form id="f" method="dialog" onsubmit="return false">
+    <h2 id="ft">Add application</h2>
+    <div class="quick"><b>Quick fill</b>
+      <textarea id="paste" placeholder="Paste the job text copied from JobStreet, Indeed, LinkedIn or WhatsApp (you can include the link too)"></textarea>
+      <div class="row"><small>A link alone cannot be read from this page, so copy the job text from the advert page.</small><button type="button" id="pastes">📋 Paste screenshot</button><button type="button" id="auto">Autofill with AI</button></div></div>
+    <div class="lrow2"><div id="lprev"></div><button type="button" id="lup">Upload logo</button><button type="button" id="lrm">Remove logo</button><small>The logo is cropped automatically from a screenshot when it is visible.</small></div>
+    <input type="file" id="lfile" accept="image/*" hidden>
+    <label>Company<input id="company" required></label>
+    <label>Position<input id="position"></label>
+    <label>Status<select id="status"></select></label>
+    <label>Date applied<input id="applied" type="date"></label>
+    <label>Interview date<input id="interview" type="date"></label>
+    <label>Follow-up date<input id="followup" type="date"></label>
+    <label>Location<input id="location"></label>
+    <label>Expected salary<input id="salary" placeholder="e.g. RM 4,500"></label>
+    <label class="full">Job link (tap the card later to open it)<input id="source" inputmode="url" placeholder="Paste the job advert link"></label>
+    <label class="full">Contact person<input id="contact"></label>
+    <label class="full">Which CV did you use?<select id="cv"></select></label>
+    <label class="full">Job description<textarea id="description" rows="5"></textarea></label>
+    <label class="full">Remarks<textarea id="remarks" rows="2"></textarea></label>
+    <div class="fa"><button type="button" id="cancel">Cancel</button><button type="submit" class="pri" id="save">Save</button></div>
+  </form>
+</dialog>
+
+<dialog id="ddlg"><div class="det" id="dbody"></div></dialog>
+
+<dialog id="cvdlg"><div class="det"><h2>My CVs</h2>
+  <div class="sub2">Upload each CV you send out. When you add a job, the tracker asks which one you used.</div>
+  <div id="cvlist"></div>
+  <div class="quick" id="cvup"><b>Upload a new CV</b>
+    <div class="row"><small>PDF only, up to 20 MB (save a Word CV as PDF first). The file name becomes the CV name and you can rename it afterwards.</small><button type="button" class="pri" id="cvupbtn">Upload CV (PDF)</button></div></div>
+  <div class="quick" id="cvedit" hidden><b>Rename or add notes</b>
+    <label>Name<input id="cvname"></label>
+    <label>Date<input id="cvdate" type="date"></label>
+    <label>Notes<input id="cvnote" placeholder="What changed in this version"></label>
+    <div class="row"><button type="button" class="pri" id="cvsave">Save</button><button type="button" id="cvclear">Cancel</button></div></div>
+  <input type="file" id="cvfile" accept=".pdf,application/pdf" hidden>
+  <div class="fa"><button type="button" id="cvbackfill">Use current CV for applications without one</button><button type="button" id="cvclose">Close</button></div></div></dialog>
+
+<dialog id="bkdlg"><div class="det"><h2>Backup and restore</h2>
+  <div class="sub2">Every change already saves to your account the moment you make it. For extra safety, keep a copy in Google Drive: download the backup, then choose Drive when your phone or browser asks where to save it.</div>
+  <button type="button" class="pri" id="bk1">Download backup (JSON)</button>
+  <button type="button" id="bk2">Export CSV for Excel</button>
+  <button type="button" id="bk3">Restore from a backup file</button>
+  <input type="file" id="bkfile" accept=".json,application/json" hidden>
+  <div class="sub2">The backup holds your applications, logos and CV details. CV PDFs stay inside the tracker, so keep your own copies in Drive too.</div>
+  <div class="fa"><button type="button" id="bkclose">Close</button></div></div></dialog>
+
+<dialog id="cdlg"><div class="cm"><h2 style="margin:0;font-size:20px">Delete application?</h2><p id="cmsg"></p><div class="fa"><button type="button" id="cno">Cancel</button><button type="button" class="dng" id="cyes">Delete</button></div></div></dialog>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(function(){
+var STATUS=[["Wishlist",215,12],["Applied",210,75],["Screening",45,85],["Interview",25,85],["Assessment",280,60],["Offer",140,60],["Accepted",155,65],["Rejected",14,55],["No Response",220,8],["Withdrawn",30,10]];
+var ACTIVE={"Applied":1,"Screening":1,"Interview":1,"Assessment":1};
+var KEY="jobtracker.v1",MIG="jobtracker.migrated",apps=[],filter="All",editId=null,dl=null,col=null,sm=null,first=true,viewOnly=false,own=false;
+var F=["company","position","status","applied","interview","followup","location","salary","source","contact","cv","description","remarks"];
+var cvs=[],cvcol=null,curLogo="",viewMode=lget("jobtracker.view")||"tiles",cvFilter="All",SEED="jobtracker.cvseed",CVKEY="jobtracker.cvs.v1",cvEdit=null,assetsNs=null,cvAttach=null,dirty=false,syncKind="",pending=0,retryQ=[],DRAFT="jobtracker.draft";
+function $(id){return document.getElementById(id)}
+function lget(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lset(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function cache(){if(!viewOnly)lset(KEY,JSON.stringify(apps))}
+function sInfo(n){for(var i=0;i<STATUS.length;i++)if(STATUS[i][0]===n)return STATUS[i];return STATUS[0]}
+function pd(s){if(!s)return null;var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
+function fmt(s){var d=pd(s);return d?d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}):""}
+var today=new Date();today.setHours(0,0,0,0);
+function days(s){var d=pd(s);return d?Math.floor((today-d)/864e5):null}
+function late(a){var d=pd(a.followup);return !!(d&&d<today&&ACTIVE[a.status])}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+var tt;function toast(m,keep){var t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);if(!keep)tt=setTimeout(function(){t.classList.remove("on")},3000)}
+function unToast(){clearTimeout(tt);$("toast").classList.remove("on")}
+function ask(msg,yes){$("cmsg").textContent=msg;var d=$("cdlg");$("cyes").onclick=function(){d.close();yes()};$("cno").onclick=function(){d.close()};d.showModal()}
+function setSync(k){syncKind=k;paintSync()}
+function paintSync(){
+  var s=$("sync"),k=syncKind;
+  if(k==="ok"&&retryQ.length){s.className="sync loc";s.textContent="⚠ Not saved yet · tap to retry";return}
+  if(k==="ok"&&pending>0){s.className="sync";s.textContent="☁ Saving…";return}
+  s.className="sync "+(k==="ok"?"ok":k==="loc"?"loc":k==="ro"?"ro":"");
+  s.textContent=k==="ok"?"☁ Saved to your account":k==="loc"?"Saved on this device only":k==="ro"?"👀 View only (shared with you)":k==="signin"?"Sign in to claude.ai to view this tracker":"Connecting…";
+}
+function link(s){s=(s||"").trim();if(!s)return null;if(/^https?:\/\/\S+$/i.test(s))return s;if(/^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(s))return "https://"+s;return null}
+function money(v){v=String(v||"").trim();if(!v)return "";if(/^[0-9,.\s]+$/.test(v)){var n=Number(v.replace(/[^0-9.]/g,""));return n?"RM "+n.toLocaleString():v}return v}
+
+/* ---- helpers: ids, logos, pills, CV versions ---- */
+function nid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function hash(t){var h=0;t=String(t||"");for(var i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))>>>0;return h}
+function logoEl(a,sz){
+  var w=el("div","logo");w.style.width=w.style.height=sz+"px";w.style.fontSize=Math.round(sz*.45)+"px";
+  if(a.logo&&/^data:image\//.test(a.logo)){var im=el("img");im.alt="";im.src=a.logo;w.appendChild(im)}
+  else{w.textContent=(a.company||"?").trim().charAt(0).toUpperCase()||"?";w.style.background="hsl("+(hash(a.company)%360)+" 45% 36%)";w.style.color="#fff";w.style.borderColor="transparent"}
+  return w;
+}
+function stylePill(e,st){var si=sInfo(st);e.style.setProperty("--h",si[1]);e.style.setProperty("--s",si[2]+"%")}
+function pillEl(a){
+  var sel;
+  if(viewOnly){sel=el("span","pill",a.status);sel.style.cursor="default"}
+  else{
+    sel=el("select","pill");
+    STATUS.forEach(function(s){var o=el("option","",s[0]);o.value=s[0];if(s[0]===a.status)o.selected=true;sel.appendChild(o)});
+    sel.onchange=function(){a.status=sel.value;stylePill(sel,a.status);put(a);render()};
+  }
+  stylePill(sel,a.status);return sel;
+}
+function cvById(id){for(var i=0;i<cvs.length;i++)if(cvs[i].id===id)return cvs[i];return null}
+function curCv(){for(var i=0;i<cvs.length;i++)if(cvs[i].current)return cvs[i];return null}
+function currentCvId(){var c=curCv();return c?c.id:""}
+function cacheCv(){if(!viewOnly)lset(CVKEY,JSON.stringify(cvs))}
+function cvBody(c){return {name:c.name||"",date:c.date||"",note:c.note||"",link:c.link||"",fileId:c.fileId||"",fileName:c.fileName||"",current:!!c.current}}
+function cvUrl(c){return c.fileId?"/_blob/"+c.fileId:link(c.link)}
+function putCv(c){if(viewOnly)return;cacheCv();if(cvcol)remote(function(){return cvcol.doc(c.id).set(cvBody(c))})}
+function dropCv(c){if(viewOnly)return;cacheCv();if(cvcol)remote(function(){return cvcol.doc(c.id).delete()})}
+function setCurrent(c){cvs.forEach(function(x){var nw=x.id===c.id;if(!!x.current!==nw){x.current=nw;putCv(x)}});render();if($("cvdlg").open)renderCvList()}
+function seedLocal(){if(cvs.length||lget(SEED))return;lset(SEED,"1");var c={id:nid(),name:"ATS Resume v2 (Nov 2026)",date:"2026-11-24",note:"One-page plain ATS version",link:"",current:true};cvs=[c];putCv(c);render()}
+function cvbar(){
+  var b=$("cvbar");b.textContent="";
+  var c=curCv(),g=el("div","grow");
+  if(c){g.appendChild(document.createTextNode("Current CV: "));g.appendChild(el("b","",c.name));var bits=[c.date?fmt(c.date):"",c.note].filter(Boolean).join(" · ");if(bits)g.appendChild(document.createTextNode("  ·  "+bits))}
+  else g.appendChild(document.createTextNode(viewOnly?"No CV shown yet.":"No CV added yet. Add the CV you are sending out."));
+  b.appendChild(g);
+  var u=c&&cvUrl(c);
+  if(u){var a=el("a","","Open CV ↗");a.href=u;a.target="_blank";a.rel="noopener noreferrer";b.appendChild(a)}
+  if(!viewOnly){var m=el("button","","Manage CVs");m.onclick=openCvs;b.appendChild(m)}
+}
+function cvFilterOpts(){
+  var f=$("cvf");f.textContent="";
+  var o=el("option","","All CVs");o.value="All";f.appendChild(o);
+  cvs.slice().sort(function(a,b){return (b.date||"").localeCompare(a.date||"")}).forEach(function(c){var x=el("option","",c.name+(c.current?" (current)":""));x.value=c.id;f.appendChild(x)});
+  var n=el("option","","No CV recorded");n.value="none";f.appendChild(n);
+  if(cvFilter!=="All"&&cvFilter!=="none"&&!cvById(cvFilter))cvFilter="All";
+  f.value=cvFilter;
+}
+function segState(){Array.prototype.forEach.call(document.querySelectorAll("#seg button"),function(b){b.className=b.getAttribute("data-v")===viewMode?"on":""})}
+function fillCvOptions(isNew){
+  var f=$("cv");f.textContent="";var o=el("option","",isNew?"— Choose the CV you used —":"(no CV recorded)");o.value="";f.appendChild(o);
+  cvs.slice().sort(function(a,b){return (b.date||"").localeCompare(a.date||"")}).forEach(function(c){var x=el("option","",c.name+(c.current?" (current)":""));x.value=c.id;f.appendChild(x)});
+  var n=el("option","","Applied without a CV");n.value="none";f.appendChild(n);
+}
+function usage(c){var n=0,i=0,o=0;apps.forEach(function(a){if(a.cv!==c.id)return;n++;if(a.status==="Interview"||a.status==="Assessment"||a.status==="Offer"||a.status==="Accepted")i++;if(a.status==="Offer"||a.status==="Accepted")o++});return n+(n===1?" application":" applications")+" · "+i+(i===1?" interview":" interviews")+" · "+o+(o===1?" offer":" offers")}
+function clearCvForm(){cvEdit=null;$("cvedit").hidden=true;["name","date","note"].forEach(function(k){$("cv"+k).value=""})}
+function pickCv(){$("cvfile").value="";$("cvfile").click()}
+function renderCvList(){
+  var box=$("cvlist");box.textContent="";
+  $("cvup").style.display=assetsNs?"":"none";
+  var list=cvs.slice().sort(function(a,b){return (b.date||"").localeCompare(a.date||"")});
+  if(!list.length)box.appendChild(el("p","sub2","No CV uploaded yet. Upload your first one below."));
+  list.forEach(function(c){
+    var r=el("div","cvrow"),h=el("div","h");h.appendChild(el("b","",c.name));if(c.current)h.appendChild(el("span","star","CURRENT"));r.appendChild(h);
+    r.appendChild(el("div","sub2",[c.date?fmt(c.date):"",usage(c)].filter(Boolean).join(" · ")));
+    if(c.note)r.appendChild(el("div","sub2",c.note));
+    var u=cvUrl(c);if(!u)r.appendChild(el("div","sub2","No file attached yet."));
+    var b=el("div","b");
+    if(!c.current){var sc=el("button","","Set as current");sc.onclick=function(){setCurrent(c)};b.appendChild(sc)}
+    if(u){var op=el("a","lnk","Open CV ↗");op.href=u;op.target="_blank";op.rel="noopener noreferrer";b.appendChild(op)}
+    else if(assetsNs){var at=el("button","","Attach PDF");at.onclick=function(){cvAttach=c;pickCv()};b.appendChild(at)}
+    var e=el("button","","Rename / notes");e.onclick=function(){cvEdit=c.id;$("cvedit").hidden=false;["name","date","note"].forEach(function(k){$("cv"+k).value=c[k]||""})};b.appendChild(e);
+    var d=el("button","","Delete");d.onclick=function(){ask("Delete CV \u201c"+c.name+"\u201d? Applications keep their record but show it as removed.",function(){cvs=cvs.filter(function(z){return z.id!==c.id});dropCv(c);if(c.fileId&&assetsNs){try{assetsNs.delete(c.fileId).catch(function(){})}catch(x){}}renderCvList();render()})};b.appendChild(d);
+    r.appendChild(b);box.appendChild(r);
+  });
+}
+function openCvs(){if(viewOnly)return;clearCvForm();renderCvList();if(!$("cvdlg").open)$("cvdlg").showModal()}
+function saveCv(){
+  if(!cvEdit)return;var c=cvById(cvEdit);if(!c)return;
+  var n=$("cvname").value.trim();if(!n){toast("Give the CV a name");return}
+  c.name=n;c.date=$("cvdate").value;c.note=$("cvnote").value.trim();putCv(c);clearCvForm();renderCvList();render();
+}
+function uploadCv(f){
+  var att=cvAttach;cvAttach=null;
+  if(!f)return;
+  if(!assetsNs){toast("Uploading is not available in this view.");return}
+  if(!/\.pdf$/i.test(f.name)&&f.type!=="application/pdf"){toast("Please upload a PDF. Save your Word CV as a PDF first.");return}
+  if(f.size>20*1024*1024){toast("That file is over 20 MB.");return}
+  toast("Uploading CV…",true);
+  assetsNs.upload(f,{type:"application/pdf"}).then(function(r){
+    unToast();
+    if(att){var tc=cvById(att.id)||att;tc.fileId=r.id;tc.fileName=f.name;putCv(tc);toast("File attached")}
+    else{var c2={id:nid(),name:f.name.replace(/\.[^.]+$/,"")||"CV",date:localToday(),note:"",fileId:r.id,fileName:f.name,current:false};cvs.push(c2);putCv(c2);setCurrent(c2);toast("CV uploaded and set as current. Use Rename to change its name.")}
+    renderCvList();render();
+  }).catch(function(e){unToast();toast(e&&e.code==="unsupported_type"?"That file type is not supported. Use a PDF.":"Upload failed. Please try again.")});
+}
+function backfill(){var c=curCv();if(!c){toast("Set a current CV first");return}var n=0;apps.forEach(function(a){if(!a.cv){a.cv=c.id;put(a);n++}});render();renderCvList();toast(n?("Updated "+n+(n===1?" application":" applications")):"Nothing to update")}
+
+/* ---- drafts, backup, restore ---- */
+function saveDraft(){if(editId||viewOnly||!$("dlg").open)return;var o={t:Date.now()};F.forEach(function(k){o[k]=$(k).value});lset(DRAFT,JSON.stringify(o))}
+function clearDraft(){try{localStorage.removeItem(DRAFT)}catch(e){}dirty=false}
+function restoreDraft(){
+  var d=null;try{d=JSON.parse(lget(DRAFT)||"null")}catch(e){}
+  if(!d||Date.now()-(d.t||0)>864e5||!(d.company||d.position||d.description))return;
+  F.forEach(function(k){if(k!=="cv"&&k!=="status"&&d[k])$(k).value=d[k]});showLogoPrev();toast("Restored your unsaved draft");
+}
+window.addEventListener("beforeunload",function(e){if(pending>0||retryQ.length||($("dlg").open&&dirty)){e.preventDefault();e.returnValue=""}});
+function saveFile(name,type,text,done){
+  if(!dl){toast("Download is not available in this view.");return}
+  dl.save({filename:name,data:new Blob([text],{type:type})}).then(function(){if(done)done()}).catch(function(){});
+}
+function backupJson(){return JSON.stringify({app:"irfanova-job-tracker",version:1,exported:new Date().toISOString(),applications:apps.map(function(a){var o=body(a);o.id=a.id;return o}),cvs:cvs.map(function(c){var o=cvBody(c);o.id=c.id;return o})},null,1)}
+function paintBackupNote(){
+  var n=$("bknote");if(viewOnly||!dl){n.style.display="none";return}
+  n.style.display="";var lb=lget("jobtracker.lastbackup");
+  if(!lb){n.textContent="No backup yet. Tap Backup and save the file to Google Drive.";return}
+  var d=days(lb);n.textContent="Last backup: "+fmt(lb)+(d>7?" ("+d+" days ago). Time for a new one: tap Backup.":"");
+}
+function openBackup(){$("bk3").style.display=viewOnly?"none":"";if(!$("bkdlg").open)$("bkdlg").showModal()}
+function restoreFrom(f){
+  if(!f||viewOnly)return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    var j;try{j=JSON.parse(rd.result)}catch(e){toast("That file is not a valid backup.");return}
+    if(!j||j.app!=="irfanova-job-tracker"||!Array.isArray(j.applications)){toast("That file is not a tracker backup.");return}
+    var A=j.applications.slice(0,1000),CV=(Array.isArray(j.cvs)?j.cvs:[]).slice(0,200),idok=/^[A-Za-z0-9_.~:@+-]{1,100}$/;
+    ask("Restore "+A.length+" applications and "+CV.length+" CVs from this backup? Items with the same ID will be overwritten.",function(){
+      A.forEach(function(x){
+        if(!x||typeof x.id!=="string"||!idok.test(x.id))return;
+        var a={id:x.id};F.forEach(function(k){a[k]=String(x[k]==null?"":x[k]).slice(0,3000)});
+        a.logo=(typeof x.logo==="string"&&/^data:image\//.test(x.logo)&&x.logo.length<80000)?x.logo:"";
+        var i=-1;apps.forEach(function(z,n){if(z.id===a.id)i=n});if(i>-1)apps[i]=a;else apps.push(a);put(a);
+      });
+      var restoredCurrent=null;
+      CV.forEach(function(x){
+        if(!x||typeof x.id!=="string"||!idok.test(x.id))return;
+        var c={id:x.id,name:String(x.name||"CV").slice(0,200),date:String(x.date||"").slice(0,10),note:String(x.note||"").slice(0,500),link:String(x.link||"").slice(0,500),fileId:/^[0-9a-f]{32}$/.test(x.fileId||"")?x.fileId:"",fileName:String(x.fileName||"").slice(0,200),current:!!x.current};
+        var i=-1;cvs.forEach(function(z,n){if(z.id===c.id)i=n});if(i>-1)cvs[i]=c;else cvs.push(c);
+        if(c.current)restoredCurrent=c;putCv(c);
+      });
+      if(restoredCurrent)cvs.forEach(function(z){if(z.id!==restoredCurrent.id&&z.current){z.current=false;putCv(z)}});
+      render();$("bkdlg").close();toast("Backup restored");
+    });
+  };
+  rd.readAsText(f);
+}
+
+/* ---- saving ---- */
+function body(a){var o={};F.forEach(function(k){o[k]=a[k]||""});o.logo=a.logo||"";return o}
+function remote(fn){
+  if(!col&&!cvcol)return;
+  pending++;paintSync();
+  function done(ok){pending--;if(!ok){retryQ.push(fn);toast("Not saved to your account yet. Keep this page open, then tap the badge at the top to retry.")}paintSync()}
+  try{fn().then(function(){done(true)},function(){done(false)})}catch(e){done(false)}
+}
+function put(a){if(viewOnly)return;cache();if(col)remote(function(){return col.doc(a.id).set(body(a))})}
+function drop(a){if(viewOnly)return;cache();if(col)remote(function(){return col.doc(a.id).delete()})}
+
+/* ---- render ---- */
+function stats(){
+  var act=apps.filter(function(a){return ACTIVE[a.status]}).length;
+  var iv=apps.filter(function(a){return a.status==="Interview"||a.status==="Assessment"}).length;
+  var off=apps.filter(function(a){return a.status==="Offer"||a.status==="Accepted"}).length;
+  var rej=apps.filter(function(a){return a.status==="Rejected"}).length;
+  var od=apps.filter(late).length;
+  var data=[["Total",apps.length],["Active",act],["Interviews",iv],["Offers",off],["Rejected",rej],["Follow-ups due",od]];
+  var box=$("stats");box.textContent="";
+  data.forEach(function(d){var s=el("div","stat");s.appendChild(el("b",d[0]==="Follow-ups due"&&d[1]?"warn":"",d[1]));s.appendChild(el("span","",d[0]));box.appendChild(s)});
+}
+function chips(){
+  var box=$("chips");box.textContent="";
+  ["All"].concat(STATUS.map(function(s){return s[0]})).forEach(function(n){
+    var c=apps.filter(function(a){return n==="All"||a.status===n}).length;
+    var b=el("button","chip"+(filter===n?" on":""),n);b.appendChild(el("i","",c));
+    b.onclick=function(){filter=n;render()};box.appendChild(b);
+  });
+}
+function metaRow(a){
+  var m=el("div","meta");
+  function add(k,v,cls){if(!v)return;var s=el("span");s.appendChild(document.createTextNode(k?k+" ":""));s.appendChild(el("b",cls||"",v));m.appendChild(s)}
+  add("Applied",fmt(a.applied));
+  var d=days(a.applied);if(d!=null)add("",d+(d===1?" day ago":" days ago"));
+  add("Interview",fmt(a.interview));
+  add("Follow-up",fmt(a.followup)+(late(a)?" (overdue)":""),late(a)?"warn":"");
+  add("Location",a.location);add("Salary",money(a.salary));add("Contact",a.contact);
+  if(a.cv){var cv=cvById(a.cv);add("CV",cv?cv.name:"(removed)")}
+  return m;
+}
+function linkEl(a){var u=link(a.source);if(!u)return null;var ln=el("a","lnk","Open job link \u2197");ln.href=u;ln.target="_blank";ln.rel="noopener noreferrer";return ln}
+function openDetail(a){
+  var b=$("dbody");b.textContent="";
+  var hd=el("div","lt"),hx=el("div");hd.appendChild(logoEl(a,52));
+  hx.appendChild(el("h2","",a.position||a.company));
+  var sub=[a.position?a.company:"",a.location].filter(Boolean).join(" \u00b7 ");if(sub)hx.appendChild(el("div","sub2",sub));
+  hd.appendChild(hx);b.appendChild(hd);
+  var p=pillEl(a);p.style.alignSelf="flex-start";b.appendChild(p);
+  b.appendChild(metaRow(a));
+  var ln=linkEl(a);if(ln)b.appendChild(ln);else if(a.source)b.appendChild(el("div","meta","Source: "+a.source));
+  b.appendChild(el("div","dh","Job description"));
+  b.appendChild(el("div","desc",a.description||"No description saved yet."+(viewOnly?"":" Tap Edit to paste one.")));
+  if(a.remarks){b.appendChild(el("div","dh","Remarks"));b.appendChild(el("div","rem",a.remarks))}
+  var fa=el("div","fa"),cl=el("button","","Close");cl.onclick=function(){$("ddlg").close()};fa.appendChild(cl);
+  if(!viewOnly){
+    var x=el("button","dng","Delete"),e=el("button","pri","Edit");
+    e.onclick=function(){$("ddlg").close();openForm(a)};
+    x.onclick=function(){ask("Delete \u201c"+a.company+"\u201d? This cannot be undone.",function(){$("ddlg").close();apps=apps.filter(function(z){return z.id!==a.id});drop(a);render();toast("Deleted")})};
+    fa.insertBefore(x,cl);fa.appendChild(e);
+  }
+  b.appendChild(fa);
+  if(!$("ddlg").open)$("ddlg").showModal();
+}
+function card(a){
+  var c=el("div","card"+(late(a)?" late":""));
+  c.onclick=function(ev){if(ev.target.closest("select,button,a"))return;openDetail(a)};
+  var top=el("div","top"),l=el("div","lt"),tx=el("div");
+  tx.appendChild(el("div","co",a.company));tx.appendChild(el("div","pos",a.position||"—"));
+  l.appendChild(logoEl(a,42));l.appendChild(tx);
+  var sel=pillEl(a);
+  top.appendChild(l);top.appendChild(sel);c.appendChild(top);
+  c.appendChild(metaRow(a));
+  var u=link(a.source);
+  if(u){var ln=el("a","lnk","Open job link ↗");ln.href=u;ln.target="_blank";ln.rel="noopener noreferrer";c.appendChild(ln)}
+  else if(a.source){var s2=el("div","meta");s2.appendChild(document.createTextNode("Source "));s2.appendChild(el("b","",a.source));c.appendChild(s2)}
+  if(a.remarks)c.appendChild(el("div","rem",a.remarks));
+  var act=el("div","act"),dt=el("button","","Details");dt.onclick=function(){openDetail(a)};act.appendChild(dt);
+  if(viewOnly){c.appendChild(act);return c}
+  var e=el("button","","Edit"),x=el("button","","Delete");
+  e.onclick=function(){openForm(a)};
+  x.onclick=function(){ask("Delete \u201c"+a.company+"\u201d? This cannot be undone.",function(){apps=apps.filter(function(z){return z.id!==a.id});drop(a);render();toast("Deleted")})};
+  act.appendChild(e);act.appendChild(x);c.appendChild(act);
+  return c;
+}
+function rowEl(a){
+  var r=el("div","lrow"+(late(a)?" late":""));
+  r.onclick=function(ev){if(ev.target.closest("select,button,a"))return;openDetail(a)};
+  r.appendChild(logoEl(a,38));
+  var t=el("div","t");t.appendChild(el("div","co",a.company));t.appendChild(el("div","pos",a.position||"—"));r.appendChild(t);
+  r.appendChild(pillEl(a));
+  r.appendChild(el("div","x",a.applied?fmt(a.applied):""));
+  var cv=a.cv?cvById(a.cv):null;r.appendChild(el("div","x",cv?cv.name:""));
+  var b=el("button","dtb","Details");b.onclick=function(){openDetail(a)};r.appendChild(b);
+  return r;
+}
+function tileEl(a){
+  var t=el("div","itile"+(late(a)?" late":""));t.onclick=function(){openDetail(a)};
+  t.appendChild(logoEl(a,56));t.appendChild(el("div","nm",a.company));
+  var p=el("span","pill",a.status);p.style.cursor="pointer";stylePill(p,a.status);t.appendChild(p);
+  t.title=(a.position?a.position+" - ":"")+a.company;
+  return t;
+}
+function render(){
+  stats();chips();cvbar();cvFilterOpts();segState();paintBackupNote();
+  var q=$("q").value.trim().toLowerCase(),so=$("sort").value;
+  var list=apps.filter(function(a){
+    if(filter!=="All"&&a.status!==filter)return false;
+    if(cvFilter==="none"&&a.cv)return false;
+    if(cvFilter!=="All"&&cvFilter!=="none"&&a.cv!==cvFilter)return false;
+    return !q||[a.company,a.position,a.contact,a.location,a.remarks].join(" ").toLowerCase().indexOf(q)>-1;
+  });
+  list.sort(function(a,b){
+    if(so==="az")return a.company.localeCompare(b.company);
+    if(so==="fu")return (a.followup||"9999").localeCompare(b.followup||"9999");
+    var r=(a.applied||"").localeCompare(b.applied||"");return so==="old"?r:-r;
+  });
+  var box=$("list");box.textContent="";
+  box.className="grid"+(viewMode==="list"?" vlist":viewMode==="icons"?" vicons":"");
+  if(!list.length){
+    var em=el("div","empty",apps.length?"No applications match this filter.":(viewOnly?"Nothing to show yet.":"No applications yet. Tap + to add one, or 📷 to scan a job advert."));
+    em.style.gridColumn="1/-1";box.appendChild(em);return;
+  }
+  list.forEach(function(a){box.appendChild(viewMode==="list"?rowEl(a):viewMode==="icons"?tileEl(a):card(a))});
+}
+
+/* ---- form ---- */
+function localToday(){return new Date(Date.now()-today.getTimezoneOffset()*6e4).toISOString().slice(0,10)}
+function openForm(a,pre){
+  editId=a?a.id:null;$("ft").textContent=a?"Edit application":"Add application";
+  fillCvOptions(!a);
+  F.forEach(function(k){$(k).value=a?(a[k]||""):(pre&&pre[k])||(k==="status"?"Applied":(k==="applied"?localToday():""))});
+  curLogo=a?(a.logo||""):((pre&&pre.logo)||"");showLogoPrev();
+  dirty=false;$("paste").value="";if(!a&&!pre)restoreDraft();
+  if(!$("dlg").open)$("dlg").showModal();
+}
+function submit(){
+  var co=$("company").value.trim();if(!co){$("company").focus();return}
+  if(!editId&&!$("cv").value){toast("Choose which CV you used for this job (or pick \u201cApplied without a CV\u201d)");$("cv").focus();return}
+  var o={};F.forEach(function(k){o[k]=$(k).value.trim()});o.description=o.description.slice(0,3000);o.logo=curLogo;if(o.cv==="none")o.cv="";
+  var a;
+  if(editId){a=Object.assign({id:editId},o);apps=apps.map(function(z){return z.id===editId?a:z})}
+  else{o.id=nid();a=o;apps.push(a)}
+  put(a);clearDraft();$("dlg").close();render();
+}
+
+/* ---- AI scan ---- */
+var PROMPT="The image is a screenshot or photo of a job advertisement. Read it and return ONLY a JSON object with these string keys: company, position, location, salary (as written in the advert, e.g. \"RM 3,500 - 4,500\"), source (website, app or URL only if visible), contact (recruiter name, email or phone only if visible), description (clean summary, max 900 characters: role overview, main responsibilities, requirements and benefits as written), remarks (closing date or deadline only, if shown). Use an empty string for anything not visible. Do not guess or invent.";
+var LOGOQ=" Also add the key logo_box: an object with numeric keys x, y, w, h (each between 0 and 1, as fractions of the image width and height measured from the top-left corner) that tightly surrounds the hiring company logo if one is clearly visible in the image, otherwise null.";
+var TPROMPT=PROMPT.replace("The image is a screenshot or photo of a job advertisement. Read it","The text below was copied from a job advertisement page or message. Read it");
+function applyPre(r,text){
+  var urls=(text||"").match(/https?:\/\/[^\s)>\]]+/g)||[];
+  ["company","position","location","salary","contact","description","remarks"].forEach(function(k){if(r&&typeof r[k]==="string"&&r[k].trim())$(k).value=r[k].trim()});
+  if(!$("source").value.trim()){var s=(r&&typeof r.source==="string"&&r.source.trim())||urls[0]||"";if(s)$("source").value=s}
+}
+function autofill(){
+  var t=$("paste").value.trim();
+  if(!t){toast("Paste the job text first");return}
+  if(/^https?:\/\/\S+$/i.test(t)){$("source").value=t;toast("Link saved. I cannot open links from here, so paste the job text or scan a screenshot to autofill.");return}
+  if(!sm){toast("AI reading is not available in this view.");return}
+  toast("Reading job text\u2026",true);
+  sm.json(TPROMPT+"\n\nJOB TEXT:\n"+t.slice(0,12000),{cache:false}).then(function(r){applyPre(r,t);toast("Check the details, then tap Save")}).catch(function(e){
+    var c=e&&e.code;toast(c==="not_granted"?"Permission was declined.":c==="rate_limited"?"Too many requests, wait a moment.":"Could not read that text. Try pasting more of the advert.")
+  });
+}
+function cropLogo(blob,box,force){
+  if(!box||typeof box!=="object")return Promise.resolve("");
+  var x=+box.x,y=+box.y,w=+box.w,h=+box.h;
+  if(![x,y,w,h].every(isFinite))return Promise.resolve("");
+  if(Math.max(x,y,w,h)>1.5&&x+w<=100&&y+h<=100){x/=100;y/=100;w/=100;h/=100}
+  if(!force&&(w<=0.01||h<=0.01||(w>0.9&&h>0.9)||x+w>1.05||y+h>1.05))return Promise.resolve("");
+  return createImageBitmap(blob).then(function(bm){
+    var pad=force?0:0.08,sx=Math.max(0,(x-w*pad)*bm.width),sy=Math.max(0,(y-h*pad)*bm.height);
+    var sw=Math.min(bm.width-sx,w*(1+2*pad)*bm.width),sh=Math.min(bm.height-sy,h*(1+2*pad)*bm.height);
+    if(sw<1||sh<1)return "";
+    var c=document.createElement("canvas"),S=96;c.width=c.height=S;var g=c.getContext("2d");
+    g.fillStyle="#fff";g.fillRect(0,0,S,S);
+    var k=Math.min(S/sw,S/sh),dw=sw*k,dh=sh*k;g.drawImage(bm,sx,sy,sw,sh,(S-dw)/2,(S-dh)/2,dw,dh);
+    return c.toDataURL("image/jpeg",.85);
+  }).catch(function(){return ""});
+}
+function showLogoPrev(){var p=$("lprev");p.textContent="";p.appendChild(logoEl({company:$("company").value||"?",logo:curLogo},56))}
+function shrink(f){
+  return createImageBitmap(f).then(function(b){
+    var s=Math.min(1,1800/Math.max(b.width,b.height)),c=document.createElement("canvas");
+    c.width=Math.round(b.width*s);c.height=Math.round(b.height*s);c.getContext("2d").drawImage(b,0,0,c.width,c.height);
+    return new Promise(function(r){c.toBlob(function(x){r(x||f)},"image/jpeg",.85)});
+  }).catch(function(){return f});
+}
+function scan(f){
+  if(!f)return;
+  if(!sm){toast("AI reading is not available in this view.");return}
+  toast("Reading job advert…",true);
+  shrink(f).then(function(img){return sm.json(PROMPT+LOGOQ,{images:img,cache:false}).then(function(r){return cropLogo(img,r&&r.logo_box).then(function(lg){return {r:r,logo:lg}})})}).then(function(o2){
+    var r=o2.r||{};var pre={};["company","position","location","salary","source","contact","description","remarks"].forEach(function(k){if(typeof r[k]==="string")pre[k]=r[k].trim()});
+    unToast();pre.logo=o2.logo;if($("dlg").open){applyPre(r,"");if(o2.logo)curLogo=o2.logo;showLogoPrev()}else openForm(null,pre);toast("Check the details, then tap Save");
+  }).catch(function(e){
+    var c=e&&e.code;toast(c==="not_granted"?"Permission was declined.":c==="rate_limited"?"Too many requests, wait a moment.":"Could not read that image. Try a clearer screenshot.")
+  });
+}
+function clipScan(){
+  if(viewOnly)return;
+  if(!navigator.clipboard||!navigator.clipboard.read){toast("Press Ctrl+V (or long-press and Paste) to paste a screenshot.");return}
+  navigator.clipboard.read().then(function(items){
+    var found=false;
+    items.forEach(function(it){
+      var t=(it.types||[]).filter(function(x){return /^image\//.test(x)})[0];
+      if(t&&!found){found=true;it.getType(t).then(function(bl){scan(new File([bl],"clipboard.png",{type:bl.type}))})}
+    });
+    if(!found)toast("No image in the clipboard. Copy a screenshot first.");
+  }).catch(function(){toast("Clipboard access was blocked. Press Ctrl+V (or long-press and Paste) instead.")});
+}
+document.addEventListener("paste",function(e){
+  if(viewOnly)return;
+  var items=(e.clipboardData&&e.clipboardData.items)||[];
+  for(var i=0;i<items.length;i++){
+    if(items[i].kind==="file"&&/^image\//.test(items[i].type)){
+      var f=items[i].getAsFile();
+      if(f){e.preventDefault();scan(f);return}
+    }
+  }
+});
+function pick(){$("pic").value="";$("pic").click()}
+$("pic").onchange=function(){scan(this.files&&this.files[0])};
+
+/* ---- export ---- */
+function csv(){
+  var H=["Company","Position","Job link","Location","Expected Salary","Date Applied","Status","Interview Date","Follow-up Date","Contact","Job Description","Remarks","CV"];
+  var K=["company","position","source","location","salary","applied","status","interview","followup","contact","description","remarks","cv"];
+  function q(v){return '"'+String(v==null?"":v).replace(/"/g,'""')+'"'}
+  return "\ufeff"+[H.map(q).join(",")].concat(apps.map(function(a){return K.map(function(k){return q(k==="cv"?((cvById(a.cv)||{}).name||""):a[k])}).join(",")})).join("\r\n");
+}
+$("add").onclick=$("add2").onclick=function(){openForm(null)};
+$("scan").onclick=$("scan2").onclick=pick;$("pasteb").onclick=$("pastes").onclick=clipScan;
+$("cancel").onclick=function(){clearDraft();$("dlg").close()};
+$("save").onclick=submit;$("cvsave").onclick=saveCv;$("cvclear").onclick=clearCvForm;$("cvclose").onclick=function(){$("cvdlg").close()};$("cvbackfill").onclick=backfill;
+$("lup").onclick=function(){$("lfile").value="";$("lfile").click()};
+$("lfile").onchange=function(){var f=this.files&&this.files[0];if(!f)return;cropLogo(f,{x:0,y:0,w:1,h:1},true).then(function(d){if(d){curLogo=d;showLogoPrev()}else toast("Could not read that image.")})};
+$("lrm").onclick=function(){curLogo="";showLogoPrev()};$("company").oninput=showLogoPrev;
+$("cvf").onchange=function(){cvFilter=this.value;render()};
+Array.prototype.forEach.call(document.querySelectorAll("#seg button"),function(b){b.onclick=function(){viewMode=b.getAttribute("data-v");lset("jobtracker.view",viewMode);render()}});$("auto").onclick=autofill;
+$("q").oninput=render;$("sort").onchange=render;
+STATUS.forEach(function(s){var o=el("option","",s[0]);o.value=s[0];$("status").appendChild(o)});
+$("exp").onclick=openBackup;
+$("bkclose").onclick=function(){$("bkdlg").close()};
+$("bk1").onclick=function(){saveFile("irfanova-job-tracker-backup-"+localToday()+".json","application/json",backupJson(),function(){lset("jobtracker.lastbackup",localToday());paintBackupNote();toast("Backup saved. Keep a copy in Google Drive.")})};
+$("bk2").onclick=function(){if(!apps.length){toast("Nothing to export yet.");return}saveFile("job-applications.csv","text/csv",csv())};
+$("bk3").onclick=function(){$("bkfile").value="";$("bkfile").click()};
+$("bkfile").onchange=function(){restoreFrom(this.files&&this.files[0])};
+$("cvupbtn").onclick=function(){cvAttach=null;pickCv()};
+$("cvfile").onchange=function(){uploadCv(this.files&&this.files[0])};
+$("f").addEventListener("input",function(){dirty=true;saveDraft()});
+$("sync").onclick=function(){if(retryQ.length){var q=retryQ.splice(0);q.forEach(function(fn){remote(fn)});toast("Retrying…")}};
+
+/* ---- start: show cached data instantly, then connect to account storage ---- */
+try{apps=JSON.parse(lget(KEY)||"[]")||[]}catch(e){apps=[]}
+try{cvs=JSON.parse(lget(CVKEY)||"[]")||[]}catch(e){cvs=[]}
+render();
+function hideScan(){$("scan").style.display="none";$("scan2").style.display="none";$("pasteb").style.display="none";$("pastes").style.display="none";$("tip").style.display="none"}
+function applyMode(){
+  if(!viewOnly)return;
+  $("add").style.display=$("add2").style.display="none";hideScan();
+  var f=document.querySelector(".fabs");if(f)f.style.display="none";
+  render();
+}
+function connect(){
+  var C=window.claude;
+  if(!C||!C.use){setSync("loc");hideScan();$("exp").style.display="none";seedLocal();return}
+  C.use("downloads").then(function(d){dl=d;if(!d)$("exp").style.display="none";paintBackupNote()}).catch(function(){$("exp").style.display="none"});
+  C.use("assets").then(function(a){assetsNs=a}).catch(function(){assetsNs=null});
+  C.use("sample").then(function(s){sm=s;if(!s){hideScan();return}
+    s.limits().then(function(l){if(!l||!l.images)hideScan()}).catch(function(){})}).catch(hideScan);
+  Promise.all([C.use("db"),C.use("user")]).then(function(r){
+    var d=r[0],u=r[1];
+    if(!d){viewOnly=true;apps=[];cvs=[];applyMode();setSync("signin");return}
+    return Promise.resolve(u?u.isOwner():false).then(function(o){
+      own=!!o;viewOnly=!own;if(viewOnly){apps=[];cvs=[];applyMode()}
+      col=d.collection("tracker");
+      var t=setTimeout(function(){if(first)setSync("loc")},10000);
+      function migrate(){
+        return Promise.resolve(u.id()).then(function(uid){return d.collection("data/users/"+uid).get()}).catch(function(){return {docs:[]}}).then(function(qs){
+          var list=qs.docs.map(function(x){var q=Object.assign({},x.data());q.id=x.id;return q});
+          if(!list.length)list=apps.slice();
+          list.forEach(function(a){col.doc(a.id).set(body(a)).catch(function(){})});
+          apps=list;cache();render();
+        });
+      }
+      col.onSnapshot(function(snap){
+        clearTimeout(t);
+        var wasFirst=first;first=false;
+        if(wasFirst&&snap.size===0&&own&&!lget(MIG)){lset(MIG,"1");migrate()}
+        else{apps=snap.docs.map(function(x){var q=Object.assign({},x.data());q.id=x.id;return q});cache()}
+        setSync(own?"ok":"ro");render();if($("cvdlg").open)renderCvList();
+      },function(){setSync(own?"loc":"signin")});
+      cvcol=d.collection("cvs");
+      cvcol.onSnapshot(function(sn){
+        var list=sn.docs.map(function(x){var q=Object.assign({},x.data());q.id=x.id;return q});
+        if(own&&sn.size===0&&!lget(SEED)){lset(SEED,"1");var c={id:nid(),name:"ATS Resume v2 (Nov 2026)",date:"2026-11-24",note:"One-page plain ATS version",link:"",current:true};cvs=[c];putCv(c)}
+        else{cvs=list;cacheCv()}
+        render();if($("cvdlg").open)renderCvList();
+      },function(){});
+    });
+  }).catch(function(){setSync("loc")});
+}
+connect();
+})();
+</script>
+</body>
+</html>
